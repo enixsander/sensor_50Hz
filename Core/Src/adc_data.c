@@ -139,9 +139,16 @@ uint16_t current_amper_x10(uint8_t out) {
 
 //v = 2*pi*R / T;
 //wind_speed = 2 * M_PI * radius / (time_anemometer / 1000 / impulse_count) m/s
+
+/*
+  5   10  15  20   25   30    m/s
+  2.8 6.2 9.6 12.8 16.2 19.6  impulse
+
+  y = 1.493*x + 0.7776
+*/
 void anemometer(void) {
 
-  float radius = 1; //meters
+  //float radius = 1; //meters
   uint32_t impulse_count = 0;
   
   impulse_count = TIM2->CNT;
@@ -153,8 +160,12 @@ void anemometer(void) {
   else  ...
 */
 
-  if(time_anemometer >= 1000) { //1s
-    wind_speed_x10 = (2 * M_PI * radius * impulse_count * 100 / time_anemometer) + 0.5;
+  if(time_anemometer >= 1000) { //0.5s
+    //wind_speed_x10 = (2 * M_PI * radius * impulse_count * 100 / time_anemometer) + 0.5;
+    if(impulse_count > 1)
+      wind_speed_x10 = (1.493 * impulse_count * 1000 / time_anemometer + 0.7776) * 10 + 0.5;
+    else
+      wind_speed_x10 = 0;
     time_anemometer = 0;
     TIM2->CNT = 0;
   }
